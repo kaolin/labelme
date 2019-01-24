@@ -19,6 +19,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('json_file')
     parser.add_argument('-o', '--out', default=None)
+    parser.add_argument('-clean', action='store_true', help='if specified, will save segmented images with transparent backgrounds')
     args = parser.parse_args()
 
     json_file = args.json_file
@@ -51,8 +52,10 @@ def main():
         i += 1
         points = shape['points']
         label = shape['label']
-        mask = utils.shape.shape_to_mask(img_shape, points, shape.get('shape_type', None))
-        mask_pil = PIL.Image.fromarray(mask.astype(np.uint8) * 255)
+        mask_pil = None
+        if args.clean:
+            mask = utils.shape.shape_to_mask(img_shape, points, shape.get('shape_type', None))
+            mask_pil = PIL.Image.fromarray(mask.astype(np.uint8) * 255)
         blank_image = PIL.Image.new('RGBA', (b, a), (0, 0, 0, 0))
         blank_image.paste(img_pil, None, mask_pil)
         label_dir = osp.join(out_dir, label)
